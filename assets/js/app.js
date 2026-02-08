@@ -39,30 +39,28 @@
       .trim();
   }
 
-  function makeFeedback({charCount, minChars}){
-    const min = minChars || 0;
-    const remaining = Math.max(0, min - charCount);
-    const ratio = min > 0 ? charCount / min : 1;
+  function evaluateAnswer(q, text){
+    const normalized = normalize(text);
+    const charCount = normalized.length;
+    const min = q.minChars || 0;
 
-    if(charCount === 0){
-      return {cls:"bad", msg:`Noch keine Antwort. Starten Sie mit 2–3 Sätzen (Kontext → Verlauf → Folgen).`};
+    const groups = Array.isArray(q.keywordGroups) && q.keywordGroups.length
+      ? q.keywordGroups
+      : (Array.isArray(q.keywords) && q.keywords.length ? [q.keywords] : []);
+
+    let matchedGroups = 0;
+    const missingGroups = [];
+    for(const group of groups){
+      const hit = group.some(k => normalized.includes(normalize(k)));
+      if(hit) matchedGroups += 1;
+      else missingGroups.push(group);
     }
-    if(charCount < Math.min(40, min * 0.35)){
-      return {cls:"bad", msg:`Sehr kurz. Schreiben Sie zuerst die Kernaussage und nennen Sie 1 Ursache + 1 Folge.`};
-    }
-    if(charCount < min){
-      return {cls:"warn", msg:`Noch zu kurz. Es fehlen ca. ${remaining} Zeichen bis zur Mindestlänge.`};
-    }
-    if(ratio < 1.2){
-      return {cls:"warn", msg:`Mindestlänge erreicht, aber knapp. Ergänzen Sie Details (Akteure, Ort/Zeit, Begriff).`};
-    }
-    if(ratio < 1.6){
-      return {cls:"good", msg:`Solide Länge. Prüfen Sie Struktur: Kontext → Verlauf → Folgen → Deutung.`};
-    }
-    if(ratio < 2.2){
-      return {cls:"good", msg:`Sehr gut ausgeführt. Falls möglich, fügen Sie ein Beispiel/Beleg hinzu.`};
-    }
-    return {cls:"good", msg:`Ausführlich und klar. Prüfen Sie nur noch auf Präzision und roten Faden.`};
+
+    const minGroups = q.minGroups || Math.min(2, groups.length || 0);
+    const hasEnoughGroups = groups.length === 0 ? true : (matchedGroups >= minGroups);
+    const longEnough = charCount >= min;
+
+    return {charCount, longEnough, matchedGroups, minGroups, hasEnoughGroups, missingGroups};
   }
 
   function progressFromState(state){
@@ -171,9 +169,6 @@
       const entry = state[q.id] || {};
       const answer = entry.answer || "";
 
-      const charCount = normalize(answer).length;
-      const fb = makeFeedback({charCount, minChars: (q.minChars || 0)});
-
       card.innerHTML = `
         <div class="qhead">
           <div>
@@ -185,33 +180,37 @@
 
         <textarea aria-label="${q.title} Antwort" placeholder="Antwort schreiben …">${escapeHtml(answer)}</textarea>
 
-        <div class="feedback ${fb.cls}" role="status">
-          ${escapeHtml(fb.msg)}
+        <div class="controls" style="margin-top:10px;">
+          <button class="btnCheck">Antwort prüfen</button>
+          <div class="smallmono attemptInfo">Versuche: ${entry.attempts || 0}/3</div>
+        </div>
+
+        <div class="feedback warn" role="status">
+          Schreiben Sie Ihre Antwort und klicken Sie auf „Antwort prüfen“.
           ${entry.lastSaved ? `<div class="footer-note">Zuletzt gespeichert: <span class="smallmono">${escapeHtml(entry.lastSaved)}</span></div>` : ""}
         </div>
 
-        <details>
-          <summary>Modelllösung anzeigen</summary>
-          <div class="model">${escapeHtml(q.model)}</div>
-        </details>
+        <div class="model" style="display:none;"></div>
       `;
 
       const ta = $("textarea", card);
       const fbBox = $(".feedback", card);
+      const modelBox = $(".model", card);
+      const btnCheck = $(".btnCheck", card);
+      const attemptInfo = $(".attemptInfo", card);
       const update = () => {
         const s = loadState();
         const txt = ta.value || "";
-        const charNow = normalize(txt).length;
-        const fbb = makeFeedback({charCount: charNow, minChars: (q.minChars || 0)});
 
         // save
-        s[q.id] = {answer: txt, lastSaved: new Date().toLocaleString()};
+        const prev = s[q.id] || {};
+        s[q.id] = {
+          answer: txt,
+          lastSaved: new Date().toLocaleString(),
+          attempts: prev.attempts || 0,
+          solved: prev.solved || false
+        };
         saveState(s);
-
-        // update feedback class + message
-        fbBox.classList.remove("good","warn","bad");
-        fbBox.classList.add(fbb.cls);
-        fbBox.innerHTML = `${escapeHtml(fbb.msg)}<div class="footer-note">Zuletzt gespeichert: <span class="smallmono">${escapeHtml(s[q.id].lastSaved)}</span></div>`;
 
         updateProgressUI();
       };
@@ -221,6 +220,45 @@
       ta.addEventListener("input", ()=>{
         if(t) clearTimeout(t);
         t = setTimeout(update, 240);
+      });
+
+      btnCheck.addEventListener("click", ()=>{
+        const s = loadState();
+        const entryNow = s[q.id] || {answer:"", attempts:0, solved:false};
+        const evalRes = evaluateAnswer(q, entryNow.answer || "");
+
+        if(evalRes.longEnough && evalRes.hasEnoughGroups){
+          entryNow.solved = true;
+          s[q.id] = {...entryNow, lastSaved: entryNow.lastSaved || new Date().toLocaleString()};
+          saveState(s);
+          fbBox.classList.remove("warn","bad");
+          fbBox.classList.add("good");
+          fbBox.innerHTML = `Korrekt bzw. ausreichend ausgeführt. Prüfen Sie noch auf Präzision und roten Faden.`;
+          modelBox.style.display = "none";
+        }else{
+          entryNow.attempts = (entryNow.attempts || 0) + 1;
+          s[q.id] = {...entryNow, lastSaved: entryNow.lastSaved || new Date().toLocaleString()};
+          saveState(s);
+
+          attemptInfo.textContent = `Versuche: ${entryNow.attempts}/3`;
+          fbBox.classList.remove("good","warn");
+          fbBox.classList.add("bad");
+
+          if(entryNow.attempts === 1){
+            fbBox.innerHTML = `Falsch bzw. unvollständig. Bitte überarbeiten.`;
+            modelBox.style.display = "none";
+          }else if(entryNow.attempts === 2){
+            fbBox.innerHTML = `Tipp: ${escapeHtml(q.hint || "Achten Sie auf zentrale Begriffe und klare Struktur.")}`;
+            modelBox.style.display = "none";
+          }else{
+            fbBox.innerHTML = `Hier ist eine Modellantwort zur Orientierung.`;
+            modelBox.style.display = "block";
+            modelBox.textContent = q.model || "";
+          }
+        }
+
+        attemptInfo.textContent = `Versuche: ${s[q.id].attempts || 0}/3`;
+        updateProgressUI();
       });
 
       list.appendChild(card);
