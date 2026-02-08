@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lernlandschaft: Schweiz im Zweiten Weltkrieg</title>
+  <meta name="description" content="Interaktive Lernlandschaft zur Schweiz im Zweiten Weltkrieg mit Videos, Freitextfragen und Sofortfeedback." />
+  <link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <h1>Lernlandschaft: Schweiz im Zweiten Weltkrieg</h1>
+        <p>5 Dokus · 30 Freitextfragen · Sofortfeedback · Export (JSON/TXT/PDF via Drucken)</p>
+      </div>
+
+      <div class="controls">
+        <input id="studentName" type="text" placeholder="Name" aria-label="Name" />
+        <input id="studentClass" type="text" placeholder="Klasse" aria-label="Klasse" />
+
+        <button id="btnExportJSON" title="Antworten als JSON herunterladen">Export JSON</button>
+        <button id="btnExportTXT" class="secondary" title="Antworten als TXT herunterladen">Export TXT</button>
+        <button id="btnPrint" class="secondary btn-hide-print" title="Print-Ansicht öffnen (als PDF speichern)">Als PDF speichern</button>
+        <button id="btnReset" class="secondary" title="Alles löschen">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="panel sidebar">
+      <h2>Navigation</h2>
+      <div class="nav">
+        <a href="#start">Start <span class="pill">Intro</span></a>
+        <a href="#videos">Videos <span class="pill">5</span></a>
+        <a href="#fragen">Fragen <span class="pill">30</span></a>
+        <a href="#zugabe">Zugabe <span class="pill">4</span></a>
+        <a href="#export">Export <span class="pill">3</span></a>
+      </div>
+
+      <div class="section" style="margin-top:12px;">
+        <h2 style="font-size:16px; margin:0 0 6px 0;">Fortschritt</h2>
+        <p style="margin:0 0 10px 0;">Bearbeitet = mindestens 1 Zeichen Antwort.</p>
+        <div class="progress">
+          <div class="bar" aria-label="Fortschrittsbalken">
+            <div id="progressFill" class="fill"></div>
+          </div>
+          <div id="progressText" class="smallmono">0/30</div>
+        </div>
+        <div class="footer-note">
+          Hinweis: Alles wird lokal im Browser gespeichert (localStorage). Keine Cloud, kein Login.
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:12px;">
+        <h2 style="font-size:16px; margin:0 0 6px 0;">Arbeitsauftrag</h2>
+        <p>1) Schauen Sie die Videos (gezielt, nicht am Stück).</p>
+        <p>2) Beantworten Sie die Fragen schriftlich. Sofortfeedback hilft beim Präzisieren.</p>
+        <p>3) Exportieren Sie Ihre Antworten am Schluss.</p>
+        <div class="footer-note">Tipp: Schreiben Sie in Blöcken: <span class="smallmono">Kontext → Verlauf → Folgen → Deutung</span>.</div>
+      </div>
+    </aside>
+
+    <section class="panel content">
+      <div id="start" class="section">
+        <h2>Start</h2>
+        <p><b>Leitfrage:</b> Wie navigierte die Schweiz zwischen Neutralität, militärischer Verteidigung und wirtschaftlichen Verflechtungen?</p>
+        <p>Diese Lernlandschaft kombiniert fünf Dokus mit 30 Freitextfragen (5–7 pro Station) und Sofortfeedback.</p>
+        <p class="footer-note">Technik: Sofortfeedback = Mindestlänge + Strukturhinweis (Kontext → Verlauf → Folgen → Deutung).</p>
+      </div>
+
+      <div id="videos" class="section">
+        <h2>Videos (Reihenfolge fix)</h2>
+        <p>Alle Videos sind als HTML5-Video eingebettet (Dropbox Direct Link <span class="smallmono">dl=1</span>).</p>
+
+        <div class="grid2">
+          <div class="panel video-card">
+            <h3>1) Die Geschichte der neutralen Schweiz</h3>
+            <video controls preload="metadata">
+              <source src="https://www.dropbox.com/scl/fi/39tpkj8uetxvaficw5jrd/Die-Geschichte-der-neutralen-Schweiz.mp4?rlkey=zovy66mf4oczaplqn0ubty1ux&st=ixh2qe2t&dl=1" type="video/mp4" />
+              Ihr Browser unterstützt dieses Videoformat nicht.
+            </video>
+            <div class="meta">
+              <span>Station 1</span><span>Neutralität</span>
+            </div>
+          </div>
+
+          <div class="panel video-card">
+            <h3>2) Réduit National</h3>
+            <video controls preload="metadata">
+              <source src="https://www.dropbox.com/scl/fi/g3jy8ue42ne83n3kg5bbl/R-duit-National-Ein-Film-ber-die-Schweiz-im-zweiten-Weltkrieg.mp4?rlkey=qrf9w0931sud01ze3fskkrump&st=5r8y4jq4&dl=1" type="video/mp4" />
+              Ihr Browser unterstützt dieses Videoformat nicht.
+            </video>
+            <div class="meta">
+              <span>Station 2</span><span>Reduit</span>
+            </div>
+          </div>
+
+          <div class="panel video-card">
+            <h3>3) Alpenfestung Gotthard</h3>
+            <video controls preload="metadata">
+              <source src="https://www.dropbox.com/scl/fi/0nv5baccsfedpsidob6mh/Alpenfestung-Gotthard-Auf-den-Spuren-eines-nationalen-Mythos-Doku-SRF-Dok.mp4?rlkey=m1c39dkwnswh0l7qvxsq3ctt4&st=uadt4rb7&dl=1" type="video/mp4" />
+              Ihr Browser unterstützt dieses Videoformat nicht.
+            </video>
+            <div class="meta">
+              <span>Station 3</span><span>Mythos</span>
+            </div>
+          </div>
+
+          <div class="panel video-card">
+            <h3>4) Hitlers Geldwäscher</h3>
+            <video controls preload="metadata">
+              <source src="https://www.dropbox.com/scl/fi/k8dr297cm0jz8l2uke05e/Hitlers-Geldw-scher-Wie-Schweizer-Banken-den-Krieg-finanzierten.mp4?rlkey=m9axkfwwf3y7edx2rqzhi9uyc&st=czt8zm77&dl=1" type="video/mp4" />
+              Ihr Browser unterstützt dieses Videoformat nicht.
+            </video>
+            <div class="meta">
+              <span>Station 4</span><span>Finanzplatz</span>
+            </div>
+          </div>
+
+          <div class="panel video-card">
+            <h3>5) Nazigold in England und in der Schweiz</h3>
+            <video controls preload="metadata">
+              <source src="https://www.dropbox.com/scl/fi/t8dysj8w7susupf8nwyoo/Vor-20-Jahren-Nazigold-in-England-und-in-der-Schweiz-SPIEGEL-TV.mp4?rlkey=axit1lg0anhe7ltkcoe81lvni&st=wmo9g7uv&dl=1" type="video/mp4" />
+              Ihr Browser unterstützt dieses Videoformat nicht.
+            </video>
+            <div class="meta">
+              <span>Station 5</span><span>Aufarbeitung</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          Falls ein Video nicht lädt: Prüfen Sie, ob die Datei in Dropbox öffentlich/abrufbar ist. In GitHub Pages funktionieren Direct-Links mit <span class="smallmono">?dl=1</span> am zuverlässigsten.
+        </div>
+      </div>
+
+      <div id="fragen" class="section">
+        <h2>Fragen (mit Sofortfeedback)</h2>
+        <p>Schreiben Sie Ihre Antworten. Das System speichert automatisch und zeigt Feedback direkt an.</p>
+        <div id="questionList"></div>
+      </div>
+
+      <div id="zugabe" class="section">
+        <h2>Zugabe (ohne Didaktisierung)</h2>
+        <p>Optionale Spielfilme/Beiträge zur Vertiefung:</p>
+        <ul>
+          <li><a href="https://www.playsuisse.ch/de/show/806376?utm_origin=sharing.link" target="_blank" rel="noopener">Play Suisse – Beitrag 1</a></li>
+          <li><a href="https://www.playsuisse.ch/de/show/802120?utm_origin=sharing.link" target="_blank" rel="noopener">Play Suisse – Beitrag 2</a></li>
+          <li><a href="https://www.playsuisse.ch/de/show/3068855?utm_origin=sharing.link" target="_blank" rel="noopener">Play Suisse – Beitrag 3</a></li>
+          <li><a href="https://www.playsuisse.ch/de/show/813090?utm_origin=sharing.link" target="_blank" rel="noopener">Play Suisse – Beitrag 4</a></li>
+        </ul>
+      </div>
+
+      <div id="export" class="section">
+        <h2>Export</h2>
+        <p><b>Export JSON</b> (für Abgabe / Lehrperson / Weiterverarbeitung) · <b>Export TXT</b> (einfacher Abgabetext) · <b>Als PDF speichern</b> (Druckdialog, dann „Als PDF“).</p>
+        <p class="footer-note">Hinweis: In der Druckansicht werden Navigation und Buttons ausgeblendet – es bleibt eine saubere Abgabe.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/data/questions.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
