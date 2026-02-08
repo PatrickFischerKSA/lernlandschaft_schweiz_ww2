@@ -174,15 +174,15 @@ textarea:focus{border-color: rgba(125,211,252,.55)}
 .feedback.good{border-color: rgba(34,197,94,.45)}
 .feedback.warn{border-color: rgba(245,158,11,.5)}
 .feedback.bad{border-color: rgba(239,68,68,.5)}
-details{
+.model{
   margin-top:10px;
   border:1px solid var(--border);
   border-radius:14px;
   padding:10px 12px;
-  background: rgba(255,255,255,.015);
+  background: rgba(255,255,255,.02);
+  color: var(--muted);
+  line-height:1.45;
 }
-details summary{cursor:pointer; color:var(--accent); font-weight:700}
-details .model{margin-top:8px; color:var(--muted); line-height:1.45}
 .footer-note{margin-top:10px; font-size:12px; color:var(--muted)}
 .progress{
   display:flex; align-items:center; justify-content:space-between;
